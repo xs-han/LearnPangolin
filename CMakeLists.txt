@@ -21,9 +21,11 @@ include_directories(
 ${Pangolin_INCLUDE_DIRS}
 )
 
+find_package(OpenCV REQUIRED)
+
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 add_executable(MyGraphics examples/MyGraphics.cpp)
-target_link_libraries(MyGraphics ${Pangolin_LIBRARIES} )
+target_link_libraries(MyGraphics ${Pangolin_LIBRARIES} ${OpenCV_LIBS})

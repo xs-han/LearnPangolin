@@ -1,7 +1,10 @@
 #include <iostream>
 #include <pangolin/pangolin.h>
+#include <opencv2/core.hpp>
+#include <opencv2/calib3d.hpp>
 
 using namespace std;
+using namespace cv;
 
 void drawCamera(const float * Twc){
     //把下面的点都做一次旋转变换
@@ -69,8 +72,19 @@ int main(int argc, char **argv)
             .SetHandler(&handler);
 
     std::vector<float > Twc = {1,0,0,0, 0,1,0,0 , 0,0,1,0 ,0,0,5,1};
+    float rvecArray[] = {0, 0, CV_PI / 6};
+    float tvec[] = {0,0,5};
+    float homo[] = {0,0,0,1};
+    Mat rvec(3,1,CV_32F,rvecArray);
+    Mat R(3,3,CV_32F), t(3,1,CV_32F,tvec), hmat(1,4,CV_32F,homo);
+    Rodrigues(rvec, R);
+    Mat TwcMat(4,4,CV_32F);
+    R.convertTo(TwcMat(Range(0,3), Range(0,3)),CV_32F);
+    t.convertTo(TwcMat(Range(0,3), Range(3,4)),CV_32F);
+    hmat.convertTo(TwcMat(Range(3,4), Range(0,4)),CV_32F);
+
     vector<vector<float> > allCams;
-    float x = 0, y = 0, z = 0;
+    float x = 0, y = 0, z = 5;
     while(!pangolin::ShouldQuit())
     {
         // Clear screen and activate view to render into
@@ -82,13 +96,15 @@ int main(int argc, char **argv)
         //坐标轴的创建
         pangolin::glDrawAxis(3);
 
-        z += 0.01;
+        //z += 0.01;
         drawPoint(x,y,z);
-        Twc[14] += 0.01;
-        allCams.push_back(Twc);
-        for(vector<float> tmp: allCams){
-            drawCamera(tmp.data());
-        }
+//        Twc[14] += 0.01;
+//        allCams.push_back(Twc);
+//        for(vector<float> tmp: allCams){
+//            drawCamera(tmp.data());
+//        }
+        Mat matT = TwcMat.t();
+        drawCamera((float*)matT.data);
 
         // Swap frames and Process Events
         pangolin::FinishFrame();
